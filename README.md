@@ -19,3 +19,10 @@ The major changes that were required include:
 	* Modify the function: `BSP_USBPD_PWR_VBUSInit` to call the initialize the I2C VBUS Controller using the function: `LL_BSP_PWR_VBUSInit`
 	* Modify the function: `BSP_USBPD_PWR_VBUSGetVoltage` to read the voltage from the BSP using the function: `BSP_PWRMON_GetVoltage`
 * Modify `main.c` to enable the MOSFETs that attach the CCx signals to the MCU
+
+
+# TODO
+
+* Modify the policy of the design to select a contract other than 5V
+* Fix the interface between the UCPD and the host to enable transmition of voltages and currents
+* Modify the design to be a dual role port
