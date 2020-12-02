@@ -28,8 +28,8 @@
 #include "../BSP/stm32g071b_discovery_lcd.h"
 #include "../BSP/stm32g071b_discovery_pwr.h"
 #include "../BSP/stm32g071b_discovery_pwrmon.h"
-#include "stdio.h"
 #include "usbpd_trace.h"
+#include "usbpd_preference.h"
 
 /* USER CODE END Includes */
 
@@ -40,7 +40,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define STRING_LEN 20
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,6 +48,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+
+usbpd_user_config_t dpm_user_preference[USBPD_PORT_COUNT];
 
 I2C_HandleTypeDef hi2c1;
 DMA_HandleTypeDef hdma_i2c1_rx;
@@ -682,6 +683,13 @@ void StartUSBPDTask(void *argument)
   BSP_MOSFET_On(MOSFET_RD_CC1);
 
 
+  for (int i = 0; i < USBPD_PORT_COUNT; i++){
+    usbpd_pref_init(&dpm_user_preference[i]);
+  }
+  usbpd_pref_set(&dpm_user_preference[0], 9000, 15000, 1000, 3000);
+  usbpd_pref_prefer_max_v(&dpm_user_preference[0], false);
+  usbpd_pref_prefer_max_p(&dpm_user_preference[0], true);
+
 
   /* Infinite loop */
   for(;;)
@@ -691,9 +699,8 @@ void StartUSBPDTask(void *argument)
     //voltage = LL_BSP_PWR_VBUSGetVoltage(0);
     BSP_PWRMON_GetVoltage(ALERT_VBUS, &voltage);
     //BSP_PWRMON_GetVoltage(ALERT_CC2, &voltage);
-    //voltage = BSP_PWRMON_GetVoltage(ALERT_VBUS, DefaultConfig);
     buf_len = snprintf((char *) buffer, STRING_LEN, "Voltage: %ld", voltage);
-    //USBPD_TRACE_Add(6, 0, 0, buffer, buf_len);
+    USBPD_TRACE_Add(6, 0, 0, buffer, buf_len);
 
     //BSP_LED_Toggle(LED_GREEN);
     //BSP_LED_Toggle(LED5);
