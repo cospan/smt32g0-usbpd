@@ -87,12 +87,6 @@ void Error_Handler(void);
 #define JOY_RIGHT_GPIO_Port GPIOC
 #define EN_SMPS_Pin GPIO_PIN_0
 #define EN_SMPS_GPIO_Port GPIOA
-#define CS_DISP_Pin GPIO_PIN_3
-#define CS_DISP_GPIO_Port GPIOA
-#define RST_DISP_Pin GPIO_PIN_6
-#define RST_DISP_GPIO_Port GPIOA
-#define D_C_DISP_Pin GPIO_PIN_7
-#define D_C_DISP_GPIO_Port GPIOA
 #define JOY_UP_Pin GPIO_PIN_4
 #define JOY_UP_GPIO_Port GPIOC
 #define ALERT_VBUS_Pin GPIO_PIN_5

@@ -49,13 +49,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-usbpd_user_config_t dpm_user_preference[USBPD_PORT_COUNT];
-
 I2C_HandleTypeDef hi2c1;
 DMA_HandleTypeDef hdma_i2c1_rx;
 DMA_HandleTypeDef hdma_i2c1_tx;
-
-SPI_HandleTypeDef hspi1;
 
 /* Definitions for usbpdTask */
 osThreadId_t usbpdTaskHandle;
@@ -66,6 +62,7 @@ const osThreadAttr_t usbpdTask_attributes = {
 };
 /* USER CODE BEGIN PV */
 
+usbpd_user_config_t dpm_user_preference[USBPD_PORT_COUNT];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,7 +72,6 @@ static void MX_DMA_Init(void);
 static void MX_UCPD1_Init(void);
 static void MX_USART4_UART_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_SPI1_Init(void);
 void StartUSBPDTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -119,7 +115,6 @@ int main(void)
   MX_UCPD1_Init();
   MX_USART4_UART_Init();
   MX_I2C1_Init();
-  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
   BSP_LED_Init(LED4);
@@ -274,46 +269,6 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
-
-}
-
-/**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI1_Init(void)
-{
-
-  /* USER CODE BEGIN SPI1_Init 0 */
-
-  /* USER CODE END SPI1_Init 0 */
-
-  /* USER CODE BEGIN SPI1_Init 1 */
-
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_1LINE;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 7;
-  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI1_Init 2 */
-
-  /* USER CODE END SPI1_Init 2 */
 
 }
 
@@ -551,10 +506,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LD6_SINK_SPY_Pin|ALERT_VBUS_Pin|ALERT_CC1_Pin|ALERT_CC2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(EN_SMPS_GPIO_Port, EN_SMPS_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, CS_DISP_Pin|RST_DISP_Pin|D_C_DISP_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(EN_SMPS_GPIO_Port, EN_SMPS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ENCC1_Pin|ENCC2_Pin|RD_CC1_Pin, GPIO_PIN_RESET);
@@ -585,17 +537,10 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : EN_SMPS_Pin */
   GPIO_InitStruct.Pin = EN_SMPS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(EN_SMPS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : CS_DISP_Pin RST_DISP_Pin D_C_DISP_Pin */
-  GPIO_InitStruct.Pin = CS_DISP_Pin|RST_DISP_Pin|D_C_DISP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(EN_SMPS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ALERT_VBUS_Pin ALERT_CC1_Pin ALERT_CC2_Pin */
   GPIO_InitStruct.Pin = ALERT_VBUS_Pin|ALERT_CC1_Pin|ALERT_CC2_Pin;
@@ -651,12 +596,13 @@ void StartUSBPDTask(void *argument)
   uint32_t voltage;
   BSP_JOY_Init(JOY_MODE_EXTI);
   LL_BSP_PWR_VBUSInit(0);
-  //BSP_LCD_Init();
 
-  //BSP_LCD_Clear(LCD_COLOR_BLACK);
-  //BSP_LCD_SetFont(&Font12);
-  //BSP_LCD_DisplayStringAtLine(0, "Hello World");
-  //USBPD_TRACE_Add(6, 0, 0, "Hello World!", 12);
+  BSP_LCD_Init();
+  BSP_LCD_SetBackColor(LCD_COLOR_BLACK);
+  BSP_LCD_SetFont(&Font12);
+  //BSP_LCD_DisplayStringAt(0,1*16, (uint8_t*)"Hello World!",CENTER_MODE);
+	//BSP_LCD_Refresh();
+
 
   PWRMON_Config_t DefaultConfig =
   {
@@ -664,7 +610,7 @@ void StartUSBPDTask(void *argument)
     .BusConvertTime    = CONVERT_TIME_1100,
     .AveragingMode     = AVERAGING_MODE_1,
   };
-  
+
   BSP_PWRMON_Init(ALERT_VBUS, &DefaultConfig);
   BSP_PWRMON_StartMeasure(ALERT_VBUS, OPERATING_MODE_CONTINUOUS);
 
@@ -700,6 +646,9 @@ void StartUSBPDTask(void *argument)
     BSP_PWRMON_GetVoltage(ALERT_VBUS, &voltage);
     //BSP_PWRMON_GetVoltage(ALERT_CC2, &voltage);
     buf_len = snprintf((char *) buffer, STRING_LEN, "Voltage: %ld", voltage);
+  	BSP_LCD_SetBackColor(LCD_COLOR_BLACK);
+  	BSP_LCD_DisplayStringAt(0,1*16, buffer, LEFT_MODE);
+		BSP_LCD_Refresh();
     USBPD_TRACE_Add(6, 0, 0, buffer, buf_len);
 
     //BSP_LED_Toggle(LED_GREEN);
