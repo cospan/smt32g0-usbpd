@@ -864,7 +864,8 @@ __weak int32_t BSP_USBPD_PWR_VBUSGetCurrent(uint32_t Instance, int32_t *pCurrent
   }
   else
   {
-    *pCurrent = LL_BSP_PWR_VBUSGetCurrent(Instance);
+    //*pCurrent = LL_BSP_PWR_VBUSGetCurrent(Instance);
+  	BSP_PWRMON_GetCurrent(ALERT_VBUS, pCurrent);
     //ret = BSP_ERROR_FEATURE_NOT_SUPPORTED;
     ret = BSP_ERROR_NONE;
   }
@@ -873,7 +874,7 @@ __weak int32_t BSP_USBPD_PWR_VBUSGetCurrent(uint32_t Instance, int32_t *pCurrent
       inside this function
    !!! */
   //PWR_DEBUG_TRACE(Instance, "ADVICE: Update BSP_USBPD_PWR_VBUSGetCurrent");
-  PWR_DEBUG_TRACE(Instance, "NOTICE: Read VBUS Current from BSP");
+  //PWR_DEBUG_TRACE(Instance, "NOTICE: Read VBUS Current from BSP");
   return ret;
   /* USER CODE END BSP_USBPD_PWR_VBUSGetCurrent */
 }
