@@ -506,7 +506,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LD6_SINK_SPY_Pin|ALERT_VBUS_Pin|ALERT_CC1_Pin|ALERT_CC2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(EN_SMPS_GPIO_Port, EN_SMPS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(EN_SMPS_GPIO_Port, EN_SMPS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ENCC1_Pin|ENCC2_Pin|RD_CC1_Pin, GPIO_PIN_RESET);

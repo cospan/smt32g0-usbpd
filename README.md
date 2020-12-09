@@ -25,7 +25,7 @@ The major changes that were required include:
 
 * [X] Modify the policy of the design to select a contract other than 5V: 2020.12.01: Working @ 9V!
 * [X] Demonstrate Writing to LCD: 2020.12.04: Demoed
-* [X] Fix the interface between the UCPD and the host to enable transmition of voltages and currents: 2020:12.05: Working
-* [ ] Turn on the system from USB-C Alone
+* [X] Fix the interface between the UCPD and the host to enable transmition of voltages and currents: 2020.12.05: Working
+* [X] Turn on the system from USB-C Alone: 2020.12.09: Working but only the male connector works, need to figure that out
 * [ ] Modify the design to be a dual role port
 * [ ] Demonstrate the design can be used to charge a battery
