@@ -31,9 +31,6 @@
 #include "usbpd_dpm_user.h"
 #include "usbpd_vdm_user.h"
 
-#include "gui_api.h"
-#include "usbpd_gui_memmap.h"
-
 /* USER CODE BEGIN Includes */
 /* Section where include file can be added */
 
@@ -65,8 +62,8 @@ extern USBPD_USER_SettingsTypeDef       DPM_USER_Settings[USBPD_PORT_COUNT];
 USBPD_SettingsTypeDef       DPM_Settings[USBPD_PORT_COUNT] =
 {
   {
-    .PE_SupportedSOP = USBPD_SUPPORTED_SOP_SOP|USBPD_SUPPORTED_SOP_SOP1    , /* Supported SOP : SOP, SOP' SOP" SOP'Debug SOP"Debug */
-    .PE_SpecRevision = USBPD_SPECIFICATION_REV3,/* spec revision value                                     */
+    .PE_SupportedSOP = USBPD_SUPPORTED_SOP_SOP    , /* Supported SOP : SOP, SOP' SOP" SOP'Debug SOP"Debug */
+    .PE_SpecRevision = USBPD_SPECIFICATION_REV2,/* spec revision value                                     */
     .PE_DefaultRole = USBPD_PORTPOWERROLE_SNK,  /* Default port role                                       */
     .PE_RoleSwap = USBPD_FALSE,                  /* support port role swap                                  */
     .PE_VDMSupport = USBPD_FALSE,
@@ -113,7 +110,7 @@ USBPD_USER_SettingsTypeDef       DPM_USER_Settings[USBPD_PORT_COUNT] =
     .PE_DataSwap = USBPD_FALSE,                  /* support data swap                                       */
     .PE_VconnSwap = USBPD_FALSE,                 /* support VCONN swap                                  */
     .PE_DR_Swap_To_DFP = USBPD_TRUE,                  /*  Support of DR Swap to DFP                                  */
-    .PE_DR_Swap_To_UFP = USBPD_FALSE,                  /*  Support of DR Swap to UFP                                  */
+    .PE_DR_Swap_To_UFP = USBPD_TRUE,                  /*  Support of DR Swap to UFP                                  */
 #if defined(USBPD_REV30_SUPPORT)
 #if _MANU_INFO
     .DPM_ManuInfoPort =                      /*!< Manufacturer information used for the port            */

@@ -9,10 +9,10 @@
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                             www.st.com/SLA0044
   *
   ******************************************************************************
   */
@@ -24,11 +24,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 #include "../BSP/stm32g071b_discovery.h"
 #include "../BSP/stm32g071b_discovery_lcd.h"
 #include "../BSP/stm32g071b_discovery_pwr.h"
 #include "../BSP/stm32g071b_discovery_pwrmon.h"
-#include "usbpd_trace.h"
+
 #include "usbpd_preference.h"
 
 /* USER CODE END Includes */
@@ -48,6 +49,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
 
 I2C_HandleTypeDef hi2c1;
 DMA_HandleTypeDef hdma_i2c1_rx;
@@ -69,9 +71,9 @@ usbpd_user_config_t dpm_user_preference[USBPD_PORT_COUNT];
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_UCPD1_Init(void);
-static void MX_USART4_UART_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_UCPD1_Init(void);
+static void MX_ADC1_Init(void);
 void StartUSBPDTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -112,9 +114,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_UCPD1_Init();
-  MX_USART4_UART_Init();
   MX_I2C1_Init();
+  MX_UCPD1_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   BSP_LED_Init(LED4);
@@ -218,12 +220,70 @@ void SystemClock_Config(void)
   }
   /** Initializes the peripherals clocks
   */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_ADC;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
+  PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_SYSCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.LowPowerAutoPowerOff = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_160CYCLES_5;
+  hadc1.Init.SamplingTimeCommon2 = ADC_SAMPLETIME_160CYCLES_5;
+  hadc1.Init.OversamplingMode = DISABLE;
+  hadc1.Init.TriggerFrequencyMode = ADC_TRIGGER_FREQ_HIGH;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
@@ -355,116 +415,6 @@ static void MX_UCPD1_Init(void)
 }
 
 /**
-  * @brief USART4 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART4_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART4_Init 0 */
-
-  /* USER CODE END USART4_Init 0 */
-
-  LL_USART_InitTypeDef USART_InitStruct = {0};
-
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-  /* Peripheral clock enable */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART4);
-
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
-  /**USART4 GPIO Configuration
-  PC11   ------> USART4_RX
-  PC10   ------> USART4_TX
-  */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_11;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
-  LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
-  LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /* USART4 DMA Init */
-
-  /* USART4_RX Init */
-  LL_DMA_SetPeriphRequest(DMA1, LL_DMA_CHANNEL_5, LL_DMAMUX_REQ_USART4_RX);
-
-  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
-
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PRIORITY_LOW);
-
-  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MODE_NORMAL);
-
-  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PERIPH_NOINCREMENT);
-
-  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MEMORY_INCREMENT);
-
-  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_PDATAALIGN_BYTE);
-
-  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_5, LL_DMA_MDATAALIGN_BYTE);
-
-  /* USART4_TX Init */
-  LL_DMA_SetPeriphRequest(DMA1, LL_DMA_CHANNEL_6, LL_DMAMUX_REQ_USART4_TX);
-
-  LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_6, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
-
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_6, LL_DMA_PRIORITY_LOW);
-
-  LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_6, LL_DMA_MODE_NORMAL);
-
-  LL_DMA_SetPeriphIncMode(DMA1, LL_DMA_CHANNEL_6, LL_DMA_PERIPH_NOINCREMENT);
-
-  LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_6, LL_DMA_MEMORY_INCREMENT);
-
-  LL_DMA_SetPeriphSize(DMA1, LL_DMA_CHANNEL_6, LL_DMA_PDATAALIGN_BYTE);
-
-  LL_DMA_SetMemorySize(DMA1, LL_DMA_CHANNEL_6, LL_DMA_MDATAALIGN_BYTE);
-
-  /* USART4 interrupt Init */
-  NVIC_SetPriority(USART3_4_LPUART1_IRQn, 3);
-  NVIC_EnableIRQ(USART3_4_LPUART1_IRQn);
-
-  /* USER CODE BEGIN USART4_Init 1 */
-
-  /* USER CODE END USART4_Init 1 */
-  USART_InitStruct.PrescalerValue = LL_USART_PRESCALER_DIV1;
-  USART_InitStruct.BaudRate = 921600;
-  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
-  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-  LL_USART_Init(USART4, &USART_InitStruct);
-  LL_USART_ConfigAsyncMode(USART4);
-
-  /* USER CODE BEGIN WKUPType USART4 */
-
-  /* USER CODE END WKUPType USART4 */
-
-  LL_USART_Enable(USART4);
-
-  /* Polling USART4 initialisation */
-  while((!(LL_USART_IsActiveFlag_TEACK(USART4))) || (!(LL_USART_IsActiveFlag_REACK(USART4))))
-  {
-  }
-  /* USER CODE BEGIN USART4_Init 2 */
-
-  /* USER CODE END USART4_Init 2 */
-
-}
-
-/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -509,10 +459,18 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(EN_SMPS_GPIO_Port, EN_SMPS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ENCC1_Pin|ENCC2_Pin|RD_CC1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, SRC_EN_Pin|ENCC1_Pin|ENCC2_Pin|RD_CC1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, LD5_TO_PLUG_Pin|LD4_TO_REC_Pin|LD7_SOURCE_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PC11 PC10 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF1_USART4;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LD6_SINK_SPY_Pin */
   GPIO_InitStruct.Pin = LD6_SINK_SPY_Pin;
@@ -548,6 +506,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SRC_EN_Pin */
+  GPIO_InitStruct.Pin = SRC_EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(SRC_EN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ENCC1_Pin ENCC2_Pin RD_CC1_Pin */
   GPIO_InitStruct.Pin = ENCC1_Pin|ENCC2_Pin|RD_CC1_Pin;
@@ -594,14 +559,20 @@ void StartUSBPDTask(void *argument)
   uint32_t buf_len = 0;
   uint8_t buffer[STRING_LEN];
   uint32_t voltage;
-  BSP_JOY_Init(JOY_MODE_EXTI);
-  LL_BSP_PWR_VBUSInit(0);
+  uint32_t vsrc_voltage = 0;
+  //LL_BSP_PWR_VBUSInit(0);
+  enum state_e {SHOW_VOLTAGE, SHOW_PD_STATE};
+  enum state_e state = SHOW_VOLTAGE;
+  JOYState_TypeDef joy_mode;
+
+  HAL_ADC_Start_IT(&hadc1);
+  //HAL_ADC_Start(&hadc1);
 
   BSP_LCD_Init();
+  //BSP_JOY_Init(JOY_MODE_EXTI);
+  BSP_JOY_Init(JOY_MODE_GPIO);
   BSP_LCD_SetBackColor(LCD_COLOR_BLACK);
   BSP_LCD_SetFont(&Font12);
-  //BSP_LCD_DisplayStringAt(0,1*16, (uint8_t*)"Hello World!",CENTER_MODE);
-	//BSP_LCD_Refresh();
 
 
   PWRMON_Config_t DefaultConfig =
@@ -640,16 +611,46 @@ void StartUSBPDTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    //HAL_GPIO_TogglePin(GPIOD, LD7_SOURCE_Pin);
-    BSP_LED_Toggle(LED_ORANGE);
-    //voltage = LL_BSP_PWR_VBUSGetVoltage(0);
-    BSP_PWRMON_GetVoltage(ALERT_VBUS, &voltage);
-    //BSP_PWRMON_GetVoltage(ALERT_CC2, &voltage);
-    buf_len = snprintf((char *) buffer, STRING_LEN, "Voltage: %ld", voltage);
-  	BSP_LCD_SetBackColor(LCD_COLOR_BLACK);
-  	BSP_LCD_DisplayStringAt(0,1*16, buffer, LEFT_MODE);
-		BSP_LCD_Refresh();
-    USBPD_TRACE_Add(6, 0, 0, buffer, buf_len);
+    BSP_LCD_Clear(LCD_COLOR_BLACK);
+    joy_mode = BSP_JOY_GetState();
+    switch (joy_mode){
+      case (JOY_SEL):
+        BSP_LED_Toggle(LED_ORANGE);
+        break;
+      case (JOY_LEFT):
+        break;
+      case (JOY_RIGHT):
+        break;
+      case (JOY_UP):
+        state = SHOW_PD_STATE;
+        break;
+      case (JOY_DOWN):
+        state = SHOW_VOLTAGE;
+        break;
+      case (JOY_NONE):
+      default:
+        break;
+
+    }
+    
+    switch (state) {
+      case SHOW_PD_STATE:
+        break;
+      case SHOW_VOLTAGE:
+        BSP_PWRMON_GetVoltage(ALERT_VBUS, &voltage);
+        vsrc_voltage = (uint32_t) (HAL_ADC_GetValue(&hadc1) * VSRC_ANALOG_SCALE);
+        buf_len = snprintf((char *) buffer, STRING_LEN, "Voltage: %ld", voltage);
+      	BSP_LCD_SetBackColor(LCD_COLOR_BLACK);
+      	BSP_LCD_DisplayStringAt(0,1*16, buffer, LEFT_MODE);
+      	buf_len = snprintf((char *) buffer, STRING_LEN, "VSource: %8ld", vsrc_voltage);
+      	BSP_LCD_DisplayStringAt(0,2*16, buffer, LEFT_MODE);
+
+      default:
+        break;
+
+    }
+	  BSP_LCD_Refresh();
+
 
     //BSP_LED_Toggle(LED_GREEN);
     //BSP_LED_Toggle(LED5);

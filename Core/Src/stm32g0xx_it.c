@@ -9,10 +9,10 @@
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                             www.st.com/SLA0044
   *
   ******************************************************************************
   */
@@ -22,7 +22,6 @@
 #include "main.h"
 #include "stm32g0xx_it.h"
 #include "usbpd.h"
-#include "tracer_emb.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -159,7 +158,6 @@ void DMA1_Ch4_7_DMAMUX1_OVR_IRQHandler(void)
 
   /* USER CODE END DMA1_Ch4_7_DMAMUX1_OVR_IRQn 0 */
 
-  TRACER_EMB_IRQHandlerDMA();
   /* USER CODE BEGIN DMA1_Ch4_7_DMAMUX1_OVR_IRQn 1 */
 
   /* USER CODE END DMA1_Ch4_7_DMAMUX1_OVR_IRQn 1 */
@@ -175,9 +173,6 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */
-#if defined(_GUI_INTERFACE)
-  GUI_TimerCounter();
-#endif
 
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 1 */
 }
@@ -198,21 +193,6 @@ void I2C1_IRQHandler(void)
   /* USER CODE BEGIN I2C1_IRQn 1 */
 
   /* USER CODE END I2C1_IRQn 1 */
-}
-
-/**
-  * @brief This function handles USART3, USART4 and LPUART1 interrupts / LPUART1 wake-up interrupt through EXTI line 28.
-  */
-void USART3_4_LPUART1_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART3_4_LPUART1_IRQn 0 */
-
-  /* USER CODE END USART3_4_LPUART1_IRQn 0 */
-
-  TRACER_EMB_IRQHandlerUSART();
-  /* USER CODE BEGIN USART3_4_LPUART1_IRQn 1 */
-
-  /* USER CODE END USART3_4_LPUART1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

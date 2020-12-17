@@ -136,7 +136,7 @@ USBPD_StatusTypeDef USBPD_DPM_InitCore(void)
     USBPD_DPM_HardReset,
     NULL,
     USBPD_DPM_Notification,
-    USBPD_DPM_ExtendedMessageReceived,
+    NULL,
     USBPD_DPM_GetDataInfo,
     USBPD_DPM_SetDataInfo,
     NULL,
@@ -192,9 +192,6 @@ USBPD_StatusTypeDef USBPD_DPM_InitCore(void)
   DPM_Params[USBPD_PORT_1].VconnCCIs        = CCNONE;
   DPM_Params[USBPD_PORT_1].VconnStatus      = USBPD_FALSE;
 #endif /* USBPD_PORT_COUNT == 2 */
-
-  /* Initialise the TRACE */
-  USBPD_TRACE_Init();
 
   /* CAD SET UP : Port 0 */
   CHECK_CAD_FUNCTION_CALL(USBPD_CAD_Init(USBPD_PORT_0, (USBPD_CAD_Callbacks *)&CAD_cbs, (USBPD_SettingsTypeDef *)&DPM_Settings[USBPD_PORT_0], &DPM_Params[USBPD_PORT_0]));
@@ -414,7 +411,6 @@ void USBPD_CAD_Task(void *argument)
   */
 void USBPD_DPM_CADCallback(uint8_t PortNum, USBPD_CAD_EVENT State, CCxPin_TypeDef Cc)
 {
-  USBPD_TRACE_Add(USBPD_TRACE_CADEVENT, PortNum, (uint8_t)State, NULL, 0);
 
   switch (State)
   {

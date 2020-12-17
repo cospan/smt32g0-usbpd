@@ -560,7 +560,6 @@ __weak int32_t BSP_USBPD_PWR_VBUSInit(uint32_t Instance)
   /* USER CODE BEGIN BSP_USBPD_PWR_VBUSInit */
   /* Check if instance is valid       */
   int32_t ret = BSP_ERROR_NONE;
-//  PWR_PowerRoleTypeDef role;
 
   if (Instance >= USBPD_PWR_INSTANCES_NBR)
   {
@@ -568,13 +567,11 @@ __weak int32_t BSP_USBPD_PWR_VBUSInit(uint32_t Instance)
   }
   else
   {
+    LL_BSP_PWR_VBUSInit(Instance);
     /* !!!
       BSP_PWR_VBUSInit is obsolete. You may need to move your user code
       inside this function
     !!! */
-    //LL_BSP_PWR_VBUSInit(Instance);
-    BSP_LED_Toggle(LED_GREEN);
-
     //PWR_DEBUG_TRACE(Instance, "ADVICE: Update BSP_USBPD_PWR_VBUSInit");
     PWR_DEBUG_TRACE(Instance, "Notice: VBUS Init Ready");
   }
@@ -607,7 +604,7 @@ __weak int32_t BSP_USBPD_PWR_VBUSDeInit(uint32_t Instance)
       BSP_PWR_VBUSDeInit is obsolete. You may need to move your user code
       inside this function
    !!! */
-//  LL_BSP_PWR_VBUSDeInit(Instance);
+  //PWR_DEBUG_TRACE(Instance, "ADVICE: Update BSP_USBPD_PWR_VBUSDeInit");
   PWR_DEBUG_TRACE(Instance, "NOTICE: De Initialize the BSP VBUS");
   return ret;
   /* USER CODE END BSP_USBPD_PWR_VBUSDeInit */
@@ -831,14 +828,12 @@ __weak int32_t BSP_USBPD_PWR_VBUSGetVoltage(uint32_t Instance, uint32_t *pVoltag
   {
     ret = BSP_ERROR_WRONG_PARAM;
   }
-  //*pVoltage = 0u;
   /* !!!
       BSP_PWR_VBUSGetVoltage is obsolete. You may need to move your user code
       inside this function
    !!! */
+  //PWR_DEBUG_TRACE(Instance, "ADVICE: Update BSP_USBPD_PWR_VBUSGetVoltage");
   BSP_PWRMON_GetVoltage(ALERT_VBUS, pVoltage);
-  //*pVoltage = LL_BSP_PWR_VBUSGetVoltage(Instance);
-  //PWR_DEBUG_TRACE(Instance, "NOTICE: Read VBUS Voltage from BSP");
   return ret;
   /* USER CODE END BSP_USBPD_PWR_VBUSGetVoltage */
 }
@@ -864,9 +859,7 @@ __weak int32_t BSP_USBPD_PWR_VBUSGetCurrent(uint32_t Instance, int32_t *pCurrent
   }
   else
   {
-    //*pCurrent = LL_BSP_PWR_VBUSGetCurrent(Instance);
   	BSP_PWRMON_GetCurrent(ALERT_VBUS, pCurrent);
-    //ret = BSP_ERROR_FEATURE_NOT_SUPPORTED;
     ret = BSP_ERROR_NONE;
   }
   /* !!!
@@ -874,7 +867,6 @@ __weak int32_t BSP_USBPD_PWR_VBUSGetCurrent(uint32_t Instance, int32_t *pCurrent
       inside this function
    !!! */
   //PWR_DEBUG_TRACE(Instance, "ADVICE: Update BSP_USBPD_PWR_VBUSGetCurrent");
-  //PWR_DEBUG_TRACE(Instance, "NOTICE: Read VBUS Current from BSP");
   return ret;
   /* USER CODE END BSP_USBPD_PWR_VBUSGetCurrent */
 }

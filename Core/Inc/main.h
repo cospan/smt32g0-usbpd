@@ -10,10 +10,10 @@
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                             www.st.com/SLA0044
   *
   ******************************************************************************
   */
@@ -30,10 +30,9 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g0xx_hal.h"
 #include "stm32g0xx_ll_ucpd.h"
-#include "stm32g0xx_ll_usart.h"
-#include "stm32g0xx_ll_rcc.h"
 #include "stm32g0xx_ll_bus.h"
 #include "stm32g0xx_ll_cortex.h"
+#include "stm32g0xx_ll_rcc.h"
 #include "stm32g0xx_ll_system.h"
 #include "stm32g0xx_ll_utils.h"
 #include "stm32g0xx_ll_pwr.h"
@@ -44,7 +43,6 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h"
 
 /* USER CODE END Includes */
 
@@ -72,7 +70,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define VDDA_APPLI 3300
+#define VSRC_ANALOG_SCALE 5.322
 #define LD6_SINK_SPY_Pin GPIO_PIN_12
 #define LD6_SINK_SPY_GPIO_Port GPIOC
 #define B1_Pin GPIO_PIN_2
@@ -91,6 +89,10 @@ void Error_Handler(void);
 #define JOY_UP_GPIO_Port GPIOC
 #define ALERT_VBUS_Pin GPIO_PIN_5
 #define ALERT_VBUS_GPIO_Port GPIOC
+#define SRC_EN_Pin GPIO_PIN_0
+#define SRC_EN_GPIO_Port GPIOB
+#define EXT_SRC_SENSE_Pin GPIO_PIN_1
+#define EXT_SRC_SENSE_GPIO_Port GPIOB
 #define ENCC1_Pin GPIO_PIN_10
 #define ENCC1_GPIO_Port GPIOB
 #define ENCC2_Pin GPIO_PIN_11
